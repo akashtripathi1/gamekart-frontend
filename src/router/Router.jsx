@@ -6,6 +6,7 @@ import PageNotFound from "@/components/CustomComponents/PageNotFound";
 import SignInPage from "@/pages/Auth/SigninPage";
 import Homepage from "@/pages/Homepage";
 import CartPage from "@/pages/CartPage";
+import MyOrders from "@/pages/MyOrders";
 import ProductDetail from "@/pages/ProductDetailsPage";
 import AdminDashboard from "@/pages/AdminDashboard";
 import RiderDashboard from "@/pages/RiderDashboard";
@@ -97,6 +98,10 @@ const router = createBrowserRouter([
       {
         path: "products/:id",
         element: <ProductDetail />,
+      },
+      {
+        path: "my-orders",
+        element: <MyOrders />,
       },
     ],
   },

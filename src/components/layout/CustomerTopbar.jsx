@@ -1,6 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { Label } from "../ui/label";
 import {
   selectCurrentUser,
   logout as logoutAction,
@@ -22,6 +23,7 @@ import { ShoppingCart } from "lucide-react";
 const CustomerTopbar = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectCurrentUser);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     dispatch(logoutAction());
@@ -39,10 +41,11 @@ const CustomerTopbar = () => {
             <nav className="hidden md:flex items-center space-x-6">
               <Link
                 to="/home/cart"
-                className="text-gray-600 hover:text-gray-900 flex items-center"
+                className="space-x-2 border-1 p-2  text-gray-600 hover:text-gray-900 flex items-center"
                 aria-label="View Cart"
               >
                 <ShoppingCart className="w-5 h-5" />
+                <Label> View Cart</Label>
               </Link>
             </nav>
             <span className="hidden md:inline text-gray-700 font-medium">
@@ -62,8 +65,14 @@ const CustomerTopbar = () => {
                 <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
+                  onClick={() => navigate('/home/my-orders')}
+                  className=""
+                >
+                  My Orders
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-red-500 cursor-pointer"
+                  className=""
                 >
                   Logout
                 </DropdownMenuItem>
