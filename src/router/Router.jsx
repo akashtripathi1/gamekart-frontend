@@ -12,6 +12,8 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import RiderDashboard from "@/pages/RiderDashboard";
 import CustomerLayout from "@/components/layout/CustomerLayout";
 import RefetchLayer from "./RefetchLayer";
+import AdminDashboardLayout from "@/components/layout/Admin/AdminDashboardLayout";
+import RiderDashboardLayout from "@/components/layout/Rider/RiderDashboardLayout";
 
 // Determine default path by role
 const defaultPathForRole = (role) => {
@@ -135,17 +137,33 @@ const router = createBrowserRouter([
     path: "/admin",
     element: (
       <ProtectedRoute roles={["admin"]}>
-        <AdminDashboard />
+        <RefetchLayer>
+          <AdminDashboardLayout />
+        </RefetchLayer>
       </ProtectedRoute>
-    ),
+    ), 
+    children: [
+      {
+        index: true,
+        element: <AdminDashboard />, 
+      },
+    ],
   },
   {
     path: "/rider",
     element: (
       <ProtectedRoute roles={["rider"]}>
-        <RiderDashboard />
+        <RefetchLayer>
+          <RiderDashboardLayout />
+        </RefetchLayer>
       </ProtectedRoute>
-    ),
+    ), 
+    children: [
+      {
+        index: true,
+        element: <RiderDashboard />, 
+      },
+    ],
   },
 
   { path: "*", element: <PageNotFound /> },
