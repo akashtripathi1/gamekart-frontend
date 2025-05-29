@@ -6,6 +6,7 @@ import { selectCartItems, clearCart } from "@/store/slice/cartSlice";
 import { createOrder } from "@/store/slice/orderSlice";
 import AddressForm from "@/components/forms/AddressForm";
 import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
 
 const CartPage = () => {
   const reduxCart = useSelector(selectCartItems);
@@ -65,10 +66,10 @@ const handleCheckout = async () => {
     dispatch(clearCart());
     setItems([]);
     setShippingAddress(null);
-    alert("Order placed successfully!");
+    toast.success("Order placed successfully!");
   } catch (err) {
     console.error("Order failed:", err);
-    alert("Failed to place order.");
+    toast.error("Failed to place order.");
   }
 };
 

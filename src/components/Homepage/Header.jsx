@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { ShoppingCart } from "lucide-react";
+import toast from "react-hot-toast";
 
 const Header = () => {
   const dispatch = useDispatch();

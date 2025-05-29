@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux"; // 👈 Added useDispatc
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { selectProductById } from "@/store/slice/productSlice";
 import { addToCart } from "@/store/slice/cartSlice"; // 👈 Import addToCart action
+import toast from "react-hot-toast";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -47,8 +48,9 @@ const ProductDetail = () => {
       quantity: quantity,
       image: product.images[0],
     };
-    console.log(cartItem)
-    dispatch(addToCart(cartItem)); 
+    console.log(cartItem);
+    dispatch(addToCart(cartItem));
+    toast.success("Added to Cart!");
   };
 
   const renderStars = (rating) => {
@@ -132,44 +134,44 @@ const ProductDetail = () => {
             isMobile ? "grid-cols-1" : "lg:grid-cols-2"
           } gap-12`}
         >
-{/* Product Images */}
-<div className="space-y-4">
-  {/* Main Image */}
-  <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-    {product.images && product.images.length > 0 ? (
-      <img
-        src={product.images[selectedImage]}
-        alt={product.name}
-        className="w-full h-full object-contain"
-      />
-    ) : (
-      <div className="w-full h-full flex items-center justify-center bg-gray-200">
-        <span className="text-gray-400">No image available</span>
-      </div>
-    )}
-  </div>
+          {/* Product Images */}
+          <div className="space-y-4">
+            {/* Main Image */}
+            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+              {product.images && product.images.length > 0 ? (
+                <img
+                  src={product.images[selectedImage]}
+                  alt={product.name}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                  <span className="text-gray-400">No image available</span>
+                </div>
+              )}
+            </div>
 
-  {/* Thumbnail Images */}
-  {product.images && product.images.length > 1 && (
-    <div className="flex space-x-2">
-      {product.images.map((image, index) => (
-        <button
-          key={index}
-          onClick={() => setSelectedImage(index)}
-          className={`w-20 h-20 rounded-md overflow-hidden ${
-            selectedImage === index ? "ring-2 ring-blue-500" : ""
-          }`}
-        >
-          <img
-            src={image}
-            alt={`${product.name} thumbnail ${index + 1}`}
-            className="w-full h-full object-cover"
-          />
-        </button>
-      ))}
-    </div>
-  )}
-</div>
+            {/* Thumbnail Images */}
+            {product.images && product.images.length > 1 && (
+              <div className="flex space-x-2">
+                {product.images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`w-20 h-20 rounded-md overflow-hidden ${
+                      selectedImage === index ? "ring-2 ring-blue-500" : ""
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`${product.name} thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Product Info */}
           <div className="space-y-6">
