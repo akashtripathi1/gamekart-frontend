@@ -132,30 +132,44 @@ const ProductDetail = () => {
             isMobile ? "grid-cols-1" : "lg:grid-cols-2"
           } gap-12`}
         >
-          {/* Product Images */}
-          <div className="space-y-4">
-            {/* Main Image */}
-            <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-              <span className="text-gray-400">
-                Product Image {selectedImage + 1}
-              </span>
-            </div>
+{/* Product Images */}
+<div className="space-y-4">
+  {/* Main Image */}
+  <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+    {product.images && product.images.length > 0 ? (
+      <img
+        src={product.images[selectedImage]}
+        alt={product.name}
+        className="w-full h-full object-contain"
+      />
+    ) : (
+      <div className="w-full h-full flex items-center justify-center bg-gray-200">
+        <span className="text-gray-400">No image available</span>
+      </div>
+    )}
+  </div>
 
-            {/* Thumbnail Images */}
-            <div className="flex space-x-2">
-              {(product.images || []).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center text-xs text-gray-400 ${
-                    selectedImage === index ? "ring-2 ring-blue-500" : ""
-                  }`}
-                >
-                  Image {index + 1}
-                </button>
-              ))}
-            </div>
-          </div>
+  {/* Thumbnail Images */}
+  {product.images && product.images.length > 1 && (
+    <div className="flex space-x-2">
+      {product.images.map((image, index) => (
+        <button
+          key={index}
+          onClick={() => setSelectedImage(index)}
+          className={`w-20 h-20 rounded-md overflow-hidden ${
+            selectedImage === index ? "ring-2 ring-blue-500" : ""
+          }`}
+        >
+          <img
+            src={image}
+            alt={`${product.name} thumbnail ${index + 1}`}
+            className="w-full h-full object-cover"
+          />
+        </button>
+      ))}
+    </div>
+  )}
+</div>
 
           {/* Product Info */}
           <div className="space-y-6">
