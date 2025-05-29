@@ -34,39 +34,21 @@ const AdminTopbar = () => {
 
           {/* Navigation and Profile */}
           <div className="flex items-center gap-5">
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link to="/admin/dashboard" className="text-gray-700 hover:text-blue-600 font-medium">
-                Dashboard
-              </Link>
-              <Link to="/admin/products" className="text-gray-700 hover:text-blue-600 font-medium">
-                Products
-              </Link>
-              <Link to="/admin/orders" className="text-gray-700 hover:text-blue-600 font-medium">
-                Orders
-              </Link>
-              <Link to="/admin/users" className="text-gray-700 hover:text-blue-600 font-medium">
-                Users
-              </Link>
-            </nav>
-
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <button className="flex items-center gap-2 p-0 border-none bg-transparent cursor-pointer">
+                  <span className="text-sm font-medium text-gray-700 hidden sm:inline">
+                    Hi {user?.name?.split(" ")[0]}
+                  </span>
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user?.photoURL} alt={user?.name} />
                     <AvatarFallback>{user?.name?.[0] || "A"}</AvatarFallback>
                   </Avatar>
-                  <span className="text-sm font-medium text-gray-700 hidden sm:inline">
-                    {user?.name?.split(" ")[0]}
-                  </span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/admin/profile")}>
-                  Profile
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   Logout
                 </DropdownMenuItem>
