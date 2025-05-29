@@ -3,6 +3,9 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { selectCartItems, clearCart } from "@/store/slice/cartSlice";
+import { createOrder } from "@/store/slice/orderSlice";
+import AddressForm from "@/components/forms/AddressForm";
+import { Button } from "@/components/ui/button";
 
 const CartPage = () => {
   const reduxCart = useSelector(selectCartItems);
@@ -27,6 +30,9 @@ const CartPage = () => {
     );
   };
 
+  // Add state for address
+  const [shippingAddress, setShippingAddress] = useState(null);
+
   // Remove item locally
   const handleRemoveItem = (id) => {
     setItems((current) => current.filter((item) => item.id !== id));
@@ -38,25 +44,41 @@ const CartPage = () => {
   const tax = subtotal * 0.18; // 18% GST
   const total = subtotal + shipping + tax;
 
-  // On checkout: submit then clear both local and Redux carts
-  const handleCheckout = () => {
-    const orderData = {
-      items,
-      subtotal,
-      shipping,
-      tax,
-      total,
-    };
-    console.log("Submitting order:", orderData);
-    // TODO: call your API here
+const handleCheckout = async () => {
+  if (!shippingAddress) {
+    alert("Please add a shipping address");
+    return;
+  }
 
-    // Clear cart
-    dispatch(clearCart());
-    setItems([]);
+  const orderData = {
+    items,
+    subtotal,
+    shipping,
+    tax,
+    total,
+    address: shippingAddress,
   };
 
+  try {
+    console.log("Submitting order:", orderData);
+    await dispatch(createOrder(orderData)).unwrap(); // waits for async action
+    dispatch(clearCart());
+    setItems([]);
+    setShippingAddress(null);
+    alert("Order placed successfully!");
+  } catch (err) {
+    console.error("Order failed:", err);
+    alert("Failed to place order.");
+  }
+};
+
+  // Add address submission handler
+  const handleAddressSubmit = (address) => {
+    console.log("Address submitted:", address);
+    setShippingAddress(address);
+  };
   const handleImageError = (e) => {
-    e.target.src = 'https://via.placeholder.com/300?text=Image+Not+Available';
+    e.target.src = "https://via.placeholder.com/300?text=Image+Not+Available";
     e.target.onerror = null;
   };
 
@@ -175,7 +197,8 @@ const CartPage = () => {
                     <div className="space-y-1 mb-3">
                       {item.color && (
                         <p className="text-sm text-gray-600">
-                          <span className="font-medium">Color:</span> {item.color}
+                          <span className="font-medium">Color:</span>{" "}
+                          {item.color}
                         </p>
                       )}
                       {item.size && (
@@ -220,13 +243,15 @@ const CartPage = () => {
                       <div className="text-right">
                         <div className="flex items-center justify-end space-x-2">
                           <span className="font-semibold text-gray-900">
-                            ₹{(item.price * item.quantity).toLocaleString(
+                            ₹
+                            {(item.price * item.quantity).toLocaleString(
                               "en-IN"
                             )}
                           </span>
                           {item.originalPrice && (
                             <span className="text-sm text-gray-500 line-through">
-                              ₹{(
+                              ₹
+                              {(
                                 item.originalPrice * item.quantity
                               ).toLocaleString("en-IN")}
                             </span>
@@ -286,105 +311,136 @@ const CartPage = () => {
               </button>
             </div>
           </div>
-
-          {/* Order Summary */}
           <div className="space-y-6">
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-4 text-lg">
-                Order Summary
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">
-                    ₹{subtotal.toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </span>
+            {/* Shipping Address */}
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h4 className="font-medium text-gray-900 mb-2">
+                Shipping Address
+              </h4>
+              {shippingAddress ? (
+                <div className="text-sm text-gray-600">
+                  <p>{shippingAddress.name}</p>
+                  <p>{shippingAddress.street}</p>
+                  <p>
+                    {shippingAddress.city}, {shippingAddress.state}{" "}
+                    {shippingAddress.zip}
+                  </p>
+                  <p>Phone: {shippingAddress.phone}</p>
+                  <Button
+                    variant="link"
+                    className="text-blue-600 mt-2 p-0 h-auto"
+                    onClick={() => setShippingAddress(null)}
+                  >
+                    Change Address
+                  </Button>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Shipping</span>
-                  <span className="font-medium">
-                    {shipping === 0 ? (
-                      "Free"
-                    ) : (
-                      <>₹{shipping.toLocaleString("en-IN")}</>
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Tax (18% GST)</span>
-                  <span className="font-medium">
-                    ₹{tax.toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </span>
-                </div>
-                <div className="border-t border-gray-200 pt-3">
+              ) : (
+                <AddressForm onAddressSubmit={handleAddressSubmit} />
+              )}
+            </div>
+            {/* Order Summary */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-4 text-lg">
+                  Order Summary
+                </h3>
+                <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="font-semibold text-gray-900">Total</span>
-                    <span className="font-semibold text-gray-900 text-lg">
-                      ₹{total.toLocaleString("en-IN", {
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">
+                      ₹
+                      {subtotal.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </span>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shipping</span>
+                    <span className="font-medium">
+                      {shipping === 0 ? (
+                        "Free"
+                      ) : (
+                        <>₹{shipping.toLocaleString("en-IN")}</>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Tax (18% GST)</span>
+                    <span className="font-medium">
+                      ₹
+                      {tax.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-3">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-gray-900">Total</span>
+                      <span className="font-semibold text-gray-900 text-lg">
+                        ₹
+                        {total.toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={handleCheckout}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg mt-6 transition-colors"
+                >
+                  Proceed to Checkout
+                </button>
+                {subtotal < 10000 && (
+                  <p className="text-sm text-gray-600 mt-3 text-center">
+                    Add ₹
+                    {(10000 - subtotal).toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    more for free shipping
+                  </p>
+                )}
+              </div>
+
+              {/* Secure Checkout Badge */}
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="flex items-center justify-center space-x-2">
+                  <svg
+                    className="w-5 h-5 text-green-500"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span className="text-sm text-gray-600">Secure checkout</span>
                 </div>
               </div>
-              <button
-                onClick={handleCheckout}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg mt-6 transition-colors"
-              >
-                Proceed to Checkout
-              </button>
-              {subtotal < 10000 && (
-                <p className="text-sm text-gray-600 mt-3 text-center">
-                  Add ₹{(10000 - subtotal).toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}{" "}
-                  more for free shipping
-                </p>
-              )}
-            </div>
 
-            {/* Secure Checkout Badge */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="flex items-center justify-center space-x-2">
-                <svg
-                  className="w-5 h-5 text-green-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="text-sm text-gray-600">Secure checkout</span>
-              </div>
-            </div>
-
-            {/* Payment Methods */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h4 className="font-medium text-gray-900 mb-2 text-sm">
-                We accept:
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {["Visa", "Mastercard", "Rupay", "UPI", "Net Banking"].map(
-                  (method) => (
-                    <div
-                      key={method}
-                      className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600"
-                    >
-                      {method}
-                    </div>
-                  )
-                )}
+              {/* Payment Methods */}
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <h4 className="font-medium text-gray-900 mb-2 text-sm">
+                  We accept:
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {["Visa", "Mastercard", "Rupay", "UPI", "Net Banking"].map(
+                    (method) => (
+                      <div
+                        key={method}
+                        className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600"
+                      >
+                        {method}
+                      </div>
+                    )
+                  )}
+                </div>
               </div>
             </div>
           </div>

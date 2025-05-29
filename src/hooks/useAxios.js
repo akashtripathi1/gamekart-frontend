@@ -2,7 +2,8 @@ import store from "@/store/store";
 import axios from "axios";
 
 export const makeRequest = axios.create({
-  baseURL: import.meta.env.VITE_SERVER_URL,
+  baseURL: import.meta.env.VITE_BACKEND_URL,
+  withCredentials: true,
 });
 
 //Add a request interceptor to handle Token for every request
