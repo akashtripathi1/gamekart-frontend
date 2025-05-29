@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux"; // 👈 Added useDispatch
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { selectProductById } from "@/store/slice/productSlice"; // Update with your actual path
+import { selectProductById } from "@/store/slice/productSlice";
+import { addToCart } from "@/store/slice/cartSlice"; // 👈 Import addToCart action
 
 const ProductDetail = () => {
   const { id } = useParams();
   const product = useSelector((state) => selectProductById(state, Number(id)));
+  const dispatch = useDispatch(); // 👈 Get dispatch
 
   const [loading, setLoading] = useState(!product);
   const [error, setError] = useState(null);
@@ -36,7 +38,8 @@ const ProductDetail = () => {
     if (!product) return;
 
     const cartItem = {
-      id: product.id,
+      id: `${product.id}-${selectedColor}-${selectedSize}`, // 👈 Unique id per variant
+      productId: product.id, // 👈 Optional: to keep reference to original product
       name: product.name,
       price: product.price,
       color: selectedColor,
@@ -44,9 +47,8 @@ const ProductDetail = () => {
       quantity: quantity,
       image: product.images[0],
     };
-    console.log("Added to cart:", cartItem);
-    // Here you would typically update cart state or context
-    // Example: addToCart(cartItem);
+    console.log(cartItem)
+    dispatch(addToCart(cartItem)); 
   };
 
   const renderStars = (rating) => {
