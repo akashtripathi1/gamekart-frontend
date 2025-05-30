@@ -39,6 +39,34 @@ export const getOrderById = createAsyncThunk(
       return rejectWithValue(err.response?.data || "Fetching order failed");
     }
   }
+); // Admin: fetch all orders
+export const getAllOrders = createAsyncThunk(
+  "orders/getAllOrders",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await makeRequest.get("/api/orders");
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Fetching all orders failed"
+      );
+    }
+  }
+);
+
+// Admin: mark an order as shipped
+export const shipOrder = createAsyncThunk(
+  "orders/shipOrder",
+  async ({ orderId, riderId }, { rejectWithValue }) => {
+    try {
+      const res = await makeRequest.patch(`/api/orders/${orderId}/ship`, {
+        riderId,
+      });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || "Shipping order failed");
+    }
+  }
 );
 
 const orderSlice = createSlice({
@@ -46,7 +74,8 @@ const orderSlice = createSlice({
   initialState: {
     loading: false,
     error: null,
-    orders: [],
+    orders: [], // for admin: getAllOrders
+    myOrders: [], // for customer: getMyOrders
     selectedOrder: null,
     newOrder: null,
   },
@@ -59,6 +88,7 @@ const orderSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    // createOrder
     builder
       .addCase(createOrder.pending, (state) => {
         state.loading = true;
@@ -71,21 +101,25 @@ const orderSlice = createSlice({
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
+      });
 
+    // getMyOrders
+    builder
       .addCase(getMyOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(getMyOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload;
+        state.myOrders = action.payload;
       })
       .addCase(getMyOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
+      });
 
+    // getOrderById
+    builder
       .addCase(getOrderById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -95,6 +129,38 @@ const orderSlice = createSlice({
         state.selectedOrder = action.payload;
       })
       .addCase(getOrderById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // getAllOrders (admin)
+    builder
+      .addCase(getAllOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload;
+      })
+      .addCase(getAllOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // shipOrder (admin)
+    builder
+      .addCase(shipOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(shipOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        // update the shipped order in-place
+        const idx = state.orders.findIndex((o) => o._id === action.payload._id);
+        if (idx !== -1) state.orders[idx] = action.payload;
+      })
+      .addCase(shipOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
