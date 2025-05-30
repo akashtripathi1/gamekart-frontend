@@ -78,7 +78,7 @@ const router = createBrowserRouter([
     ),
   },
 
-  // New /customer route with nested routes
+  
   {
     path: "/home",
     element: (
@@ -91,7 +91,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Homepage />, // Default /customer route shows Homepage
+        element: <Homepage />, // Default /home route shows Homepage
       },
       {
         path: "cart",
@@ -107,31 +107,6 @@ const router = createBrowserRouter([
       },
     ],
   },
-
-  // {
-  //   path: "/home",
-  //   element: (
-  //     <ProtectedRoute roles={["customer"]}>
-  //       <Homepage />
-  //     </ProtectedRoute>
-  //   ),
-  // },
-  // {
-  //   path: "/cart",
-  //   element: (
-  //     <ProtectedRoute roles={["customer"]}>
-  //       <CartPage />
-  //     </ProtectedRoute>
-  //   ),
-  // },
-  // {
-  //   path: "/products/:id",
-  //   element: (
-  //     <ProtectedRoute roles={["customer"]}>
-  //       <ProductDetail />
-  //     </ProtectedRoute>
-  //   ),
-  // },
 
   {
     path: "/admin",
