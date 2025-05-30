@@ -15,7 +15,7 @@ const SigninPage = () => {
     dispatch(loginStart());
     try {
       window.open(
-        `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`,
+        `${import.meta.env.VITE_BACKEND_URL}api/auth/google`,
         "_self"
       );
 
