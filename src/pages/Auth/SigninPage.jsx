@@ -3,7 +3,11 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { loginStart, loginSuccess, loginFailure } from "@/store/slice/authSlice";
+import {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+} from "@/store/slice/authSlice";
 
 const SigninPage = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -15,7 +19,10 @@ const SigninPage = () => {
     dispatch(loginStart());
     try {
       window.open(
-        `${import.meta.env.VITE_BACKEND_URL}api/auth/google`,
+        `${import.meta.env.VITE_BACKEND_URL.replace(
+          /\/+$/,
+          ""
+        )}/api/auth/google`,
         "_self"
       );
 
