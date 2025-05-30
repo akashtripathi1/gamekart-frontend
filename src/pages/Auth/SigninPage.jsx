@@ -16,6 +16,20 @@ const SigninPage = () => {
   const dispatch = useDispatch();
 
   const handleGoogleSignIn = () => {
+    const isInAppBrowser = /FBAN|FBAV|Instagram|Line|WebView/i.test(
+      navigator.userAgent
+    );
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true;
+
+    if (isInAppBrowser || isStandalone) {
+      toast.error(
+        "Google login is not supported in this environment. Please open this page in Chrome or Safari."
+      );
+      return;
+    }
+
     dispatch(loginStart());
     try {
       window.open(
@@ -25,10 +39,6 @@ const SigninPage = () => {
         )}/api/auth/google`,
         "_self"
       );
-
-      // Your backend should return user data to frontend after auth
-      // You'll typically handle the success in a different component
-      // that processes the auth callback
     } catch (error) {
       dispatch(loginFailure(error.message));
       toast.error("Login failed");
