@@ -4,7 +4,7 @@ const initialState = {
   products: [
     {
       id: 1,
-      name: "PlayStation 6",
+      name: "PlayStation 5",
       price: 41650.0,
       originalPrice: 45850.0,
       image: "https://m.media-amazon.com/images/I/51afJC92cgL._SX466_.jpg",

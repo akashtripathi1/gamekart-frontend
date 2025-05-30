@@ -5,6 +5,7 @@ import {
   updateDeliveryStatus,
   clearOrderState,
 } from "@/store/slice/orderSlice";
+import toast from "react-hot-toast";
 
 // Helper function to format address
 const formatAddress = (address) => {
@@ -387,8 +388,13 @@ const RiderDashboard = () => {
     });
   };
 
-  const handleStatusChange = (orderId, newStatus) => {
-    dispatch(updateDeliveryStatus({ orderId, status: newStatus }));
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      await dispatch(updateDeliveryStatus({ orderId, status: newStatus })).unwrap();
+      toast.success(`Order status updated to ${newStatus} successfully!`);
+    } catch (error) {
+      toast.error(error.message || 'Failed to update order status');
+    }
   };
 
   return (

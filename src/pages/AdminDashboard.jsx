@@ -8,6 +8,7 @@ import {
   clearOrderState,
 } from "@/store/slice/orderSlice";
 import { fetchRiders } from "@/store/slice/riderSlice";
+import toast from "react-hot-toast";
 
 // Stats Cards Component
 const StatsCards = ({ orders, riders }) => {
@@ -177,7 +178,7 @@ const AdminDashboard = () => {
     error: ridersError,
   } = useSelector((s) => s.riders);
   const [modalOrder, setModalOrder] = useState(null);
-console.log(riders)
+  console.log(riders);
   useEffect(() => {
     dispatch(getAllOrders());
     dispatch(fetchRiders()); // Dispatch the rider fetch action
@@ -190,9 +191,15 @@ console.log(riders)
   const openShipModal = (orderId) => setModalOrder(orderId);
 
   const handleAssign = async (orderId, riderId) => {
-    await dispatch(shipOrder({ orderId, riderId })).unwrap();
-    setModalOrder(null);
-    dispatch(getAllOrders());
+    try {
+      await dispatch(shipOrder({ orderId, riderId })).unwrap();
+      toast.success(`Order successfully assigned to rider!`);
+      setModalOrder(null);
+      dispatch(getAllOrders());
+    } catch (error) {
+      toast.error(error.message || "Failed to assign order to rider");
+      setModalOrder(null);
+    }
   };
 
   if (loading) return <p className="p-6">Loading orders…</p>;
