@@ -1,4 +1,3 @@
-// features/order/orderSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { makeRequest } from "@/hooks/useAxios";
 
@@ -39,7 +38,9 @@ export const getOrderById = createAsyncThunk(
       return rejectWithValue(err.response?.data || "Fetching order failed");
     }
   }
-); // Admin: fetch all orders
+);
+
+// Admin: fetch all orders
 export const getAllOrders = createAsyncThunk(
   "orders/getAllOrders",
   async (_, { rejectWithValue }) => {
@@ -69,6 +70,38 @@ export const shipOrder = createAsyncThunk(
   }
 );
 
+// Rider: get assigned orders
+export const getRiderOrders = createAsyncThunk(
+  "orders/getRiderOrders",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await makeRequest.get("/api/orders/rider/orders");
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Fetching rider orders failed"
+      );
+    }
+  }
+);
+
+// Rider: update delivery status
+export const updateDeliveryStatus = createAsyncThunk(
+  "orders/updateDeliveryStatus",
+  async ({ orderId, status }, { rejectWithValue }) => {
+    try {
+      const res = await makeRequest.patch(`/api/orders/${orderId}/deliver`, {
+        status,
+      });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Updating delivery status failed"
+      );
+    }
+  }
+);
+
 const orderSlice = createSlice({
   name: "orders",
   initialState: {
@@ -76,8 +109,9 @@ const orderSlice = createSlice({
     error: null,
     orders: [], // for admin: getAllOrders
     myOrders: [], // for customer: getMyOrders
-    selectedOrder: null,
-    newOrder: null,
+    riderOrders: [], // for rider: getRiderOrders
+    selectedOrder: null, // for getOrderById
+    newOrder: null, // for createOrder
   },
   reducers: {
     clearOrderState: (state) => {
@@ -156,11 +190,43 @@ const orderSlice = createSlice({
       })
       .addCase(shipOrder.fulfilled, (state, action) => {
         state.loading = false;
-        // update the shipped order in-place
         const idx = state.orders.findIndex((o) => o._id === action.payload._id);
         if (idx !== -1) state.orders[idx] = action.payload;
       })
       .addCase(shipOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // getRiderOrders (rider)
+    builder
+      .addCase(getRiderOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getRiderOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.riderOrders = action.payload;
+      })
+      .addCase(getRiderOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // updateDeliveryStatus (rider)
+    builder
+      .addCase(updateDeliveryStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateDeliveryStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        const idx = state.riderOrders.findIndex(
+          (o) => o._id === action.payload._id
+        );
+        if (idx !== -1) state.riderOrders[idx] = action.payload;
+      })
+      .addCase(updateDeliveryStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

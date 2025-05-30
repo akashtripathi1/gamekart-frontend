@@ -1,7 +1,10 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { selectCurrentUser, logout as logoutAction } from "@/store/slice/authSlice";
+import {
+  selectCurrentUser,
+  logout as logoutAction,
+} from "@/store/slice/authSlice";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -29,43 +32,32 @@ const RiderTopbar = () => {
           {/* Branding */}
           <div className="flex flex-col justify-center">
             <h1 className="text-2xl font-bold text-blue-600">GameKart</h1>
-            <span className="text-sm text-gray-500 font-medium">Rider Dashboard</span>
+            <span className="text-sm text-gray-500 font-medium">
+              Rider Dashboard
+            </span>
           </div>
 
           {/* Navigation & Profile */}
           <div className="flex items-center gap-5">
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link to="/rider/dashboard" className="text-gray-700 hover:text-blue-600 font-medium">
-                Dashboard
-              </Link>
-              <Link to="/rider/orders" className="text-gray-700 hover:text-blue-600 font-medium">
-                Orders
-              </Link>
-              <Link to="/rider/availability" className="text-gray-700 hover:text-blue-600 font-medium">
-                Availability
-              </Link>
-            </nav>
-
             {/* User Avatar & Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <button className="flex items-center gap-2 p-0 border-none bg-transparent cursor-pointer">
+                  <span className="text-sm font-medium text-gray-700 hidden sm:inline">
+                    Hi {user?.name?.split(" ")[0]}
+                  </span>
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user?.photoURL} alt={user?.name} />
                     <AvatarFallback>{user?.name?.[0] || "R"}</AvatarFallback>
                   </Avatar>
-                  <span className="text-sm font-medium text-gray-700 hidden sm:inline">
-                    {user?.name?.split(" ")[0]}
-                  </span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/rider/profile")}>
-                  Profile
+                <DropdownMenuItem onClick={handleLogout}>
+                  Logout
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
