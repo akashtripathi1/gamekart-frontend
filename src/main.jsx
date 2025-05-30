@@ -13,3 +13,16 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </GoogleOAuthProvider>
   </Provider>
 );
+
+if ("serviceWorker" in navigator) {
+  // only register when rider is on /rider routes
+  const path = window.location.pathname;
+  if (path.startsWith("/rider")) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then(() => console.log("Rider PWA Service Worker registered"))
+        .catch((err) => console.error("SW registration failed:", err));
+    });
+  }
+}
